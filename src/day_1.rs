@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 pub fn print() {
-    let numbers = crate::util::lines_from_file("resources/input_day_1");
+    let numbers = crate::util::parse_numbers_from_file("resources/input_day_1");
 
     println!("Day 1, Part 1: {}", day1_part1(&numbers)); // 864864
     println!("Day 1, Part 2: {}", day1_part2(&numbers)); // 281473080
@@ -46,7 +46,7 @@ fn find_other_summand(sum: i32, first_summand: i32, numbers: &HashSet<i32>) -> O
 
 #[test]
 fn test_day1_part1() {
-    let numbers = crate::util::lines_from_file("resources/input_day_1");
+    let numbers = crate::util::parse_numbers_from_file("resources/input_day_1");
 
     assert_eq!(day1_part1(&numbers), 864864);
 }
@@ -54,7 +54,7 @@ fn test_day1_part1() {
 
 #[test]
 fn test_day1_part2() {
-    let numbers = crate::util::lines_from_file("resources/input_day_1");
+    let numbers = crate::util::parse_numbers_from_file("resources/input_day_1");
 
     assert_eq!(day1_part2(&numbers), 281473080);
 }
