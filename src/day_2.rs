@@ -1,7 +1,8 @@
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, ErrorKind};
 
 use regex::Regex;
+use std::error::Error;
 
 struct Password {
     min: i32,
@@ -24,6 +25,7 @@ fn day2_part1() -> usize {
     buf.lines()
         .map(|line| line.expect("Could not parse line"))
         .map(|s| parse_password(&s, &re))
+        .map(|pw_result| pw_result.unwrap())
         .filter(|pw| valid_by_rule_part_1(pw))
         .count()
 }
@@ -37,19 +39,20 @@ fn day2_part2() -> usize {
     buf.lines()
         .map(|line| line.expect("Could not parse line"))
         .map(|s| parse_password(&s, &re))
+        .map(|pw_result| pw_result.unwrap())
         .filter(|pw| valid_by_rule_part_2(pw))
         .count()
 }
 
 
-fn parse_password(s: &String, re: &Regex) -> Password {
-    let captures = re.captures(&s).unwrap();
-    Password {
-        min: captures.get(1).unwrap().as_str().parse().unwrap(),
-        max: captures.get(2).unwrap().as_str().parse().unwrap(),
-        pattern: captures.get(3).unwrap().as_str().parse().unwrap(),
-        password: captures.get(4).unwrap().as_str().parse().unwrap(),
-    }
+fn parse_password(s: &String, re: &Regex) -> Result<Password, Box<dyn Error>> {
+    let captures = re.captures(&s).ok_or_else(|| std::io::Error::new(ErrorKind::InvalidInput, "unable to parse password"))?;
+    Ok(Password {
+        min: captures.get(1).unwrap().as_str().parse()?,
+        max: captures.get(2).unwrap().as_str().parse()?,
+        pattern: captures.get(3).unwrap().as_str().to_owned(),
+        password: captures.get(4).unwrap().as_str().to_owned(),
+    })
 }
 
 fn valid_by_rule_part_1(password: &Password) -> bool {
