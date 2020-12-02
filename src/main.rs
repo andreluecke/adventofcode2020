@@ -55,3 +55,21 @@ fn lines_from_file(filename: impl AsRef<Path>) -> HashSet<i32> {
         .collect()
 }
 
+
+#[test]
+fn test_day1_part1() {
+
+    let numbers = lines_from_file("resources/input_day_1");
+
+    assert_eq!(day1_part1(&numbers), 864864);
+}
+
+
+#[test]
+fn test_day1_part2() {
+
+    let numbers = lines_from_file("resources/input_day_1");
+
+    assert_eq!(day1_part2(&numbers), 281473080);
+}
+
