@@ -1,3 +1,5 @@
+#![feature(option_result_contains)]
+
 mod util;
 mod day_1;
 mod day_2;

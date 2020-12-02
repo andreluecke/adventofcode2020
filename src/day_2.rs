@@ -12,18 +12,33 @@ struct Password {
 
 
 pub fn print() {
-    println!("Not yet implemented");
+    println!("Day 2, Part 1: {}", day2_part1()); // 586
+    println!("Day 2, Part 2: {}", day2_part2()); // 352
+}
+
+fn day2_part1() -> usize {
     let re: Regex = Regex::new(r"^(\d+)-(\d+) ([A-Za-z]+): (\w+)$").unwrap();
 
     let file = File::open("resources/input_day_2").expect("no such file");
     let buf = BufReader::new(file);
-    let count = buf.lines()
+    buf.lines()
         .map(|line| line.expect("Could not parse line"))
         .map(|s| parse_password(&s, &re))
-        .filter(|pw| valid(pw))
-        .count();
+        .filter(|pw| valid_by_rule_part_1(pw))
+        .count()
+}
 
-    println!("Day 2: {}", count); // 462
+
+fn day2_part2() -> usize {
+    let re: Regex = Regex::new(r"^(\d+)-(\d+) ([A-Za-z]+): (\w+)$").unwrap();
+
+    let file = File::open("resources/input_day_2").expect("no such file");
+    let buf = BufReader::new(file);
+    buf.lines()
+        .map(|line| line.expect("Could not parse line"))
+        .map(|s| parse_password(&s, &re))
+        .filter(|pw| valid_by_rule_part_2(pw))
+        .count()
 }
 
 
@@ -37,20 +52,29 @@ fn parse_password(s: &String, re: &Regex) -> Password {
     }
 }
 
-fn valid(password: &Password) -> bool {
+fn valid_by_rule_part_1(password: &Password) -> bool {
     let count = password.password.matches(&password.pattern).count() as i32;
     password.min <= count && count <= password.max
 }
 
-#[test]
-fn test_day1_part1() {
-    print();
 
-    // assert_eq!(day1_part1(&numbers), 864864);
+fn valid_by_rule_part_2(pw: &Password) -> bool {
+    let min_range = ((pw.min - 1) as usize)..((pw.min) as usize);
+    let max_range = ((pw.max - 1) as usize)..((pw.max) as usize);
+
+    pw.password.get(min_range).contains(&pw.pattern)
+        ^ pw.password.get(max_range).contains(&pw.pattern)
 }
 
+
 #[test]
-fn test_valid_pw_1() {
+fn test_day2() {
+    print();
+}
+
+
+#[test]
+fn test_valid_by_rule_part_2_1() {
 
     // 3-4 t: dttt
     let pw: Password = Password {
@@ -60,12 +84,72 @@ fn test_valid_pw_1() {
         password: String::from("dttt"),
     };
 
-    assert!(valid(&pw));
+    assert!(!valid_by_rule_part_2(&pw));
 }
 
 
 #[test]
-fn test_valid_pw_2() {
+fn test_valid_by_rule_part_2_2() {
+
+    // 3-4 t: dttx
+    let pw: Password = Password {
+        min: 3,
+        max: 4,
+        pattern: String::from("t"),
+        password: String::from("dttx"),
+    };
+
+    assert!(valid_by_rule_part_2(&pw));
+}
+
+
+#[test]
+fn test_valid_by_rule_part_2_3() {
+
+    // 3-4 t: dtxt
+    let pw: Password = Password {
+        min: 3,
+        max: 4,
+        pattern: String::from("t"),
+        password: String::from("dtxt"),
+    };
+
+    assert!(valid_by_rule_part_2(&pw));
+}
+
+
+#[test]
+fn test_valid_by_rule_part_2_4() {
+
+    // 3-4 t: dtxx
+    let pw: Password = Password {
+        min: 3,
+        max: 4,
+        pattern: String::from("t"),
+        password: String::from("dtxx"),
+    };
+
+    assert!(!valid_by_rule_part_2(&pw));
+}
+
+
+#[test]
+fn test_valid_by_rule_part_1_1() {
+
+    // 3-4 t: dttt
+    let pw: Password = Password {
+        min: 3,
+        max: 4,
+        pattern: String::from("t"),
+        password: String::from("dttt"),
+    };
+
+    assert!(valid_by_rule_part_1(&pw));
+}
+
+
+#[test]
+fn test_valid_by_rule_part_1_2() {
 
     // 5-7 l: llmlqmblllh
     let pw: Password = Password {
@@ -75,12 +159,12 @@ fn test_valid_pw_2() {
         password: String::from("llmlqmblllh"),
     };
 
-    assert!(valid(&pw));
+    assert!(valid_by_rule_part_1(&pw));
 }
 
 
 #[test]
-fn test_invalid_pw_too_many() {
+fn test_valid_by_rule_part_1_too_many() {
 
     // 3-10 g: gggxwxggggkgglklhhgg
     let pw: Password = Password {
@@ -90,11 +174,11 @@ fn test_invalid_pw_too_many() {
         password: String::from("gggxwxggggkgglklhhgg"),
     };
 
-    assert!(!valid(&pw));
+    assert!(!valid_by_rule_part_1(&pw));
 }
 
 #[test]
-fn test_invalid_pw_too_few() {
+fn test_valid_by_rule_part_1_too_few() {
 
     // 8-10 g: gxwxgkgglklhhgg
     let pw: Password = Password {
@@ -104,5 +188,5 @@ fn test_invalid_pw_too_few() {
         password: String::from("gxwxgkgglklhhgg"),
     };
 
-    assert!(!valid(&pw));
+    assert!(!valid_by_rule_part_1(&pw));
 }
