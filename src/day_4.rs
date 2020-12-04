@@ -15,7 +15,7 @@ lazy_static! {
 
 pub fn print() {
     println!("Day 4, Part 1: {}", day4_part1()); // 204
-    println!("Day 4, Part 1: {}", day4_part2()); // 183
+    println!("Day 4, Part 1: {}", day4_part2()); // 179
 }
 
 fn day4_part1() -> i32 {
@@ -28,33 +28,14 @@ fn day4_part1() -> i32 {
     for line in lines {
         let string = line.unwrap();
         if (&string).is_empty() {
-            if fields.contains_key("byr")
-                && fields.contains_key("iyr")
-                && fields.contains_key("eyr")
-                && fields.contains_key("hgt")
-                && fields.contains_key("hcl")
-                && fields.contains_key("ecl")
-                && fields.contains_key("pid") {
-                count += 1;
-            }
+            count += increment_if_valid(&fields, true);
             fields = HashMap::new();
         } else {
-            for kv_pair in string.split_ascii_whitespace() {
-                kv_pair.split_once(':')
-                    .and_then(|tuple| fields.insert(String::from(tuple.0), String::from(tuple.1)));
-            };
+            parse_fields(&mut fields, string);
         }
     }
     if !fields.is_empty() {
-        if fields.contains_key("byr")
-            && fields.contains_key("iyr")
-            && fields.contains_key("eyr")
-            && fields.contains_key("hgt")
-            && fields.contains_key("hcl")
-            && fields.contains_key("ecl")
-            && fields.contains_key("pid") {
-            count += 1;
-        }
+        count += increment_if_valid(&fields, true);
     }
     return count;
 }
@@ -70,38 +51,39 @@ fn day4_part2() -> i32 {
     for line in lines {
         let string = line.unwrap();
         if (&string).is_empty() {
-            if fields.contains_key("byr")
-                && fields.contains_key("iyr")
-                && fields.contains_key("eyr")
-                && fields.contains_key("hgt")
-                && fields.contains_key("hcl")
-                && fields.contains_key("ecl")
-                && fields.contains_key("pid")
-                && is_valid(&fields) {
-                count += 1;
-            }
+            count += increment_if_valid(&fields, false);
             fields = HashMap::new();
         } else {
-            for kv_pair in string.split_ascii_whitespace() {
-                kv_pair.split_once(':')
-                    .and_then(|tuple| fields.insert(String::from(tuple.0), String::from(tuple.1)));
-            };
+            parse_fields(&mut fields, string);
         }
     }
     if !fields.is_empty() {
-        if fields.contains_key("byr")
-            && fields.contains_key("iyr")
-            && fields.contains_key("eyr")
-            && fields.contains_key("hgt")
-            && fields.contains_key("hcl")
-            && fields.contains_key("ecl")
-            && fields.contains_key("pid")
-            && is_valid(&fields) {
-            count += 1;
-        }
+        count += increment_if_valid(&fields, false);
     }
     return count;
 }
+
+
+fn parse_fields(fields: &mut HashMap<String, String>, string: String) {
+    for kv_pair in string.split_ascii_whitespace() {
+        kv_pair.split_once(':')
+            .and_then(|tuple| fields.insert(String::from(tuple.0), String::from(tuple.1)));
+    };
+}
+
+
+fn increment_if_valid(fields: &HashMap<String, String>, ignore_rules: bool) -> i32 {
+    return if fields.contains_key("byr")
+        && fields.contains_key("iyr")
+        && fields.contains_key("eyr")
+        && fields.contains_key("hgt")
+        && fields.contains_key("hcl")
+        && fields.contains_key("ecl")
+        && fields.contains_key("pid")
+        && (ignore_rules || is_valid(&fields))
+    { 1 } else { 0 };
+}
+
 
 fn is_valid(fields: &HashMap<String, String>) -> bool {
     let mut result = true;
